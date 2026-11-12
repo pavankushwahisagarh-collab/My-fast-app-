@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EngSikho App</title>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+        
+        .header { background-color: #4CAF50; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .daily-word { background-color: #ffeb3b; padding: 10px; text-align: center; font-weight: bold; color: #d32f2f; border-bottom: 2px solid #fbc02d; }
+        
+        .tabs { display: flex; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow-x: auto; }
+        .tab { flex: 1; padding: 12px 5px; text-align: center; cursor: pointer; font-weight: bold; font-size: 13px; color: #777; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; }
+        .tab.active { color: #4CAF50; border-bottom: 3px solid #4CAF50; }
+        
+        .content { padding: 20px; display: none; }
+        .content.active { display: block; }
+        
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-bottom: 15px; outline: none; }
+        input[type="text"]:focus { border-color: #4CAF50; }
+        .word-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #4CAF50; }
+        .word-title { font-size: 22px; font-weight: bold; color: #4CAF50; margin-bottom: 5px; text-transform: capitalize;}
+        .word-hindi { font-size: 18px; color: #d32f2f; font-weight: bold; margin-bottom: 5px; }
+        .word-meaning { color: #555; font-size: 15px; font-style: italic; }
+
+        textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; resize: none; margin-bottom: 10px; outline: none; }
+        textarea:focus { border-color: #4CAF50; }
+        button { width: 100%; padding: 14px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;}
+        button:active { background-color: #388E3C; }
+        .btn-photo-label { display: block; text-align: center; width: 100%; padding: 14px; background-color: #2196F3; color: white; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-photo-label:active { background-color: #1976D2; }
+        .summary-box { margin-top: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px;}
+        #loader { display: none; text-align: center; color: #4CAF50; font-weight: bold; margin: 10px 0; }
+
+        .quiz-question { font-size: 22px; font-weight: bold; text-align: center; margin: 20px 0; color: #333; }
+        .quiz-option { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; text-align: center; border: 2px solid #ddd; font-weight: bold; }
+        .quiz-option:hover { background: #f0f0f0; }
+        .quiz-option.correct { background: #c8e6c9; border-color: #4CAF50; color: #2E7D32; }
+        .quiz-option.wrong { background: #ffcdd2; border-color: #f44336; color: #c62828; }
+        .quiz-score { text-align: center; font-weight: bold; margin-bottom: 10px; color: #555;}
+
+        #aiResponse { background: white; padding: 15px; border-radius: 8px; margin-top: 15px; min-height: 100px; line-height: 1.6; border: 1px solid #ddd; display: none;}
+    </style>
+</head>
+<body onload="startApp()">
+
+    <div class="header">📚 EngSikho App</div>
+    <div class="daily-word" id="dailyWord">Word of the Day...</div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('dict')">📖 Dict</div>
+        <div class="tab" onclick="switchTab('learn')">📚 Learn</div>
+        <div class="tab" onclick="switchTab('ai')">🤖 AI Tutor</div>
+        <div class="tab" onclick="switchTab('summ')">📄 Summary</div>
+        <div class="tab" onclick="switchTab('quiz')">🧠 Quiz</div>
+    </div>
+
+    <div id="dict" class="content active">
+        <input type="text" id="searchWord" placeholder="English word search karein..." onkeyup="searchDictionary()">
+        <div id="results"></div>
+    </div>
+
+    <div id="learn" class="content">
+        <h3 style="text-align:center; color:#555; margin-top:0;">Saare Words Padhein</h3>
+        <div id="allWordsList"></div>
+    </div>
+
+    <div id="ai" class="content">
+        <h3 style="text-align:center; color:#555; margin-top:0;">AI se Madad Lein</h3>
+        <textarea id="aiInput" placeholder="Example: Mujhe 'Abundant' shabd ka matlab aur ek sentence mein use karke samjhao..." style="height: 80px;"></textarea>
+        <button onclick="askAI()" style="background-color: #9C27B0;">Ask AI ✨</button>
+        
+        <div id="aiLoader" style="display:none; text-align:center; color:#9C27B0; font-weight:bold; margin: 10px 0;">🤖 AI soch raha hai...</div>
+        <div id="aiResponse"></div>
+    </div>
+
+    <div id="summ" class="content">
+        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="processImage()">
+        <label for="imageInput" class="btn-photo-label">📷 Photo se Text Nikalein</label>
+        <div id="loader">⏳ Photo padhi ja rahi hai...</div>
+        <textarea id="summaryInput" placeholder="Yahan English text paste karein..."></textarea>
+        <button onclick="generateSummary()">Generate Summary</button>
+        <div id="summaryOutput" class="summary-box" style="display:none;"></div>
+    </div>
+
+    <div id="quiz" class="content">
+        <div class="quiz-score" id="quizScore">Score: 0</div>
+        <div class="quiz-question" id="quizQuestion">Loading...</div>
+        <div id="quizOptions"></div>
+        <button onclick="loadQuiz()" style="background-color: #ff9800; margin-top: 10px;">Next Question 🔄</button>
+    </div>
+
+    <script>
+        var GEMINI_API_KEY = "YAHAN_APNI_API_KEY_PASTE_KAREIN";
+
+        var wordList = [
+            { word: "abundant", meaning: "existing in large quantities", hindi: "बहुत अधिक" },
+            { word: "benevolent", meaning: "kind and generous", hindi: "दयालु" },
+            { word: "crucial", meaning: "extremely important", hindi: "महत्वपूर्ण" },
+            { word: "diligent", meaning: "hardworking and careful", hindi: "मेहनती" },
+            { word: "eloquent", meaning: "fluent and persuasive in speech", hindi: "वाक्पटु" },
+            { word: "futile", meaning: "incapable of producing any useful result", hindi: "व्यर्थ" },
+            { word: "genuine", meaning: "truly what something is said to be", hindi: "असली" },
+            { word: "humble", meaning: "having a modest estimate of one's own importance", hindi: "विनम्र" },
+            { word: "inevitable", meaning: "certain to happen", hindi: "अनिवार्य" },
+            { word: "lucid", meaning: "expressed clearly; easy to understand", hindi: "स्पष्ट" }
+        ];
+
+        function switchTab(tabId) {
+            var tabs = document.querySelectorAll('.tab');
+            var contents = document.querySelectorAll('.content');
+            for(var i=0; i<tabs.length; i++) { tabs[i].classList.remove('active'); }
+            for(var i=0; i<contents.length; i++) { contents[i].classList.remove('active'); }
+            
+            if(tabId === 'dict') { tabs[0].classList.add('active'); document.getElementById('dict').classList.add('active'); }
+            else if(tabId === 'learn') { tabs[1].classList.add('active'); document.getElementById('learn').classList.add('active'); }
+            else if(tabId === 'ai') { tabs[2].classList.add('active'); document.getElementById('ai').classList.add('active'); }
+            else if(tabId === 'summ') { tabs[3].classList.add('active'); document.getElementById('summ').classList.add('active'); }
+            else { tabs[4].classList.add('active'); document.getElementById('quiz').classList.add('active'); }
+        }
+
+        function searchDictionary() {
+            var query = document.getElementById('searchWord').value.toLowerCase();
+            var resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "";
+            if(query === "") return;
+
+            var found = false;
+            var htmlContent = "";
+            
+            for (var i = 0; i < wordList.length; i++) {
+                if (wordList[i].word.toLowerCase().indexOf(query) !== -1) {
+                    htmlContent += "<div class='word-card'><div class='word-title'>" + wordList[i].word + "</div><div class='word-hindi'>हिंदी: " + wordList[i].hindi + "</div><div class='word-meaning'>" + wordList[i].meaning + "</div></div>";
+                    found = true;
+                }
+            }
+            if (!found) { resultsDiv.innerHTML = "<p style='text-align:center; color:#777;'>Koi word nahi mila.</p>"; } 
+            else { resultsDiv.innerHTML = htmlContent; }
+        }
+
+        function loadAllWords() {
+            var container = document.getElementById('allWordsList');
+            var htmlContent = "";
+            for (var i = 0; i < wordList.length; i++) {
+                htmlContent += `<div class='word-card'><div class='word-title'>${wordList[i].word}</div><div class='word-hindi'>हिंदी: ${wordList[i].hindi}</div><div class='word-meaning'>${wordList[i].meaning}</div></div>`;
+            }
+            container.innerHTML = htmlContent;
+        }
+
+        async function askAI() {
+            var prompt = document.getElementById('aiInput').value;
+            var responseDiv = document.getElementById('aiResponse');
+            var loader = document.getElementById('aiLoader');
+
+            if (prompt === "") { alert("Kripya kuch likhein!"); return; }
+            if (GEMINI_API_KEY === "YAHAN_APNI_API_KEY_PASTE_KAREIN") { alert("Kripya code mein apni API Key daalein."); return; }
+
+            responseDiv.style.display = "none";
+            loader.style.display = "block";
+
+            var fullPrompt = "You are a helpful English tutor for Indian students. Answer the following in a mix of simple English and Hindi (Hinglish), and keep it short: " + prompt;
+
+            try {
+                var response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+                });
+
+                var data = await response.json();
+                if(data.candidates && data.candidates[0].content.parts[0].text) {
+                    var aiText = data.candidates[0].content.parts[0].text.replace(/\n/g, "<br>");
+                    responseDiv.innerHTML = aiText;
+                    responseDiv.style.display = "block";
+                } else {
+                    responseDiv.innerHTML = "AI abhi jawab nahi de paaya.";
+                    responseDiv.style.display = "block";
+                }
+            } catch (error) {
+                responseDiv.innerHTML = "Error: Internet check karein ya API key sahi hai ya nahi.";
+                responseDiv.style.display = "block";
+            }
+            loader.style.display = "none";
+        }
+
+        async function processImage() {
+            var file = document.getElementById('imageInput').files[0];
+            if (!file) return;
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('summaryInput').value = "Text nikal raha hai...";
+            try {
+                var result = await Tesseract.recognize(file, 'eng');
+                document.getElementById('summaryInput').value = result.data.text;
+                document.getElementById('loader').style.display = 'none';
+                generateSummary();
+            } catch (error) {
+                alert("Photo padhne mein error aayi.");
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        function generateSummary() {
+            var text = document.getElementById('summaryInput').value;
+            var outputDiv = document.getElementById('summaryOutput');
+            if(text.length < 50) { alert("Kam se kam 50 akshar chahiye!"); return; }
+            var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            if (sentences.length <= 3) { outputDiv.style.display = "block"; outputDiv.innerHTML = "<b>Summary:</b><br><br>" + text; return; }
+            var summary = sentences.slice(0, 3).join(" ");
+            outputDiv.style.display = "block";
+            outputDiv.innerHTML = "<b>Short Summary:</b><br><br>" + summary;
+        }
+
+        function loadDailyWord() {
+            var today = new Date();
+            var index = today.getDate() % wordList.length;
+            var word = wordList[index];
+            document.getElementById('dailyWord').innerHTML = "🌟 Word of the Day: <b>" + word.word + "</b> (" + word.hindi + ")";
+        }
+
+        var currentQuestion = {};
+        var score = 0;
+
+        function loadQuiz() {
+            document.getElementById('quizOptions').innerHTML = '';
+            var randomIndex = Math.floor(Math.random() * wordList.length);
+            currentQuestion = wordList[randomIndex];
+            document.getElementById('quizQuestion').innerText = '"' + currentQuestion.word + '" ka Hindi matlab kya hai?';
+            var options = [currentQuestion.hindi];
+            while(options.length < 4) {
+                var wrongWord = wordList[Math.floor(Math.random() * wordList.length)].hindi;
+                if(options.indexOf(wrongWord) === -1) { options.push(wrongWord); }
+            }
+            options.sort(function() { return 0.5 - Math.random() });
+            for(var i=0; i<options.length; i++) {
+                var div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerText = options[i];
+                div.onclick = (function(opt, el) { return function() { checkAnswer(el, opt); }; })(options[i], div);
+                document.getElementById('quizOptions').appendChild(div);
+            }
+        }
+
+        function checkAnswer(element, selectedOption) {
+            var allOptions = document.querySelectorAll('.quiz-option');
+            for(var i=0; i<allOptions.length; i++) { allOptions[i].onclick = null; }
+            if(selectedOption === currentQuestion.hindi) {
+                element.classList.add('correct');
+                score += 10;
+                document.getElementById('quizScore').innerText = "Score: " + score;
+            } else {
+                element.classList.add('wrong');
+                for(var i=0; i<allOptions.length; i++) {
+                    if(allOptions[i].innerText === currentQuestion.hindi) allOptions[i].classList.add('correct');
+                }
+            }
+        }
+
+        function startApp() {
+            loadDailyWord();
+            loadQuiz();
+            loadAllWords();
+        }
+    </script>
+</body>
+  </html>
