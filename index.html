@@ -149,15 +149,25 @@
         }
 
         function saveLogin() {
-            var name = document.getElementById('userName').value;
-            var phone = document.getElementById('userPhone').value;
-            if(name.trim() !== "" && phone.trim().length >= 10) {
-                localStorage.setItem('eng_user', name);
-                localStorage.setItem('eng_phone', phone);
-                checkLogin();
-            } else {
-                alert("Please enter a valid Name and 10-digit Mobile Number.");
-            }
+    var name = document.getElementById('userName').value;
+    var phone = document.getElementById('userPhone').value;
+    
+    if(name.trim() !== "" && phone.trim().length >= 10) {
+        // Screen ko turant change karein
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('welcomeUser').innerText = "Hi, " + name + " 👋";
+        
+        // Data save karne ki koshish karein (agar browser rok de toh koi baat nahi)
+        try {
+            localStorage.setItem('eng_user', name);
+            localStorage.setItem('eng_phone', phone);
+        } catch(e) {}
+        
+        startApp();
+    } else {
+        alert("Please enter a valid Name and 10-digit Mobile Number.");
+    }
         }
 
         function logout() {
