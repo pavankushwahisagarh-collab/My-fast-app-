@@ -1,268 +1,523 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My AI Learn Hub App</title>
-    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
-        
-        .header { background-color: #4CAF50; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .daily-word { background-color: #ffeb3b; padding: 10px; text-align: center; font-weight: bold; color: #d32f2f; border-bottom: 2px solid #fbc02d; }
-        
-        .tabs { display: flex; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow-x: auto; }
-        .tab { flex: 1; padding: 12px 5px; text-align: center; cursor: pointer; font-weight: bold; font-size: 13px; color: #777; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; }
-        .tab.active { color: #4CAF50; border-bottom: 3px solid #4CAF50; }
-        
-        .content { padding: 20px; display: none; }
-        .content.active { display: block; }
-        
-        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-bottom: 15px; outline: none; }
-        input[type="text"]:focus { border-color: #4CAF50; }
-        .word-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #4CAF50; }
-        .word-title { font-size: 22px; font-weight: bold; color: #4CAF50; margin-bottom: 5px; text-transform: capitalize;}
-        .word-hindi { font-size: 18px; color: #d32f2f; font-weight: bold; margin-bottom: 5px; }
-        .word-meaning { color: #555; font-size: 15px; font-style: italic; }
+var wordList = [
+    // --- 1. FRUITS (50 Words) ---
+    { word: "Apple", meaning: "A round fruit with red or green skin", hindi: "सेब", category: "Fruits" },
+    { word: "Banana", meaning: "A long curved fruit with yellow skin", hindi: "केला", category: "Fruits" },
+    { word: "Mango", meaning: "A sweet yellow tropical fruit", hindi: "आम", category: "Fruits" },
+    { word: "Orange", meaning: "A round citrus fruit", hindi: "संतरा", category: "Fruits" },
+    { word: "Grapes", meaning: "Small green or purple fruits growing in bunches", hindi: "अंगूर", category: "Fruits" },
+    { word: "Watermelon", meaning: "A large fruit with green skin and red inside", hindi: "तरबूज", category: "Fruits" },
+    { word: "Papaya", meaning: "A tropical fruit with orange flesh", hindi: "पपीता", category: "Fruits" },
+    { word: "Guava", meaning: "A sweet fruit with green skin and pink inside", hindi: "अमरूद", category: "Fruits" },
+    { word: "Pineapple", meaning: "A large tropical fruit with spiky skin", hindi: "अनानास", category: "Fruits" },
+    { word: "Cherry", meaning: "A small round red fruit", hindi: "चेरी", category: "Fruits" },
+    { word: "Strawberry", meaning: "A sweet red fruit with small seeds on the outside", hindi: "स्ट्रॉबेरी", category: "Fruits" },
+    { word: "Kiwi", meaning: "A small fruit with brown skin and green flesh", hindi: "कीवी", category: "Fruits" },
+    { word: "Lemon", meaning: "A yellow citrus fruit with a sour taste", hindi: "नींबू", category: "Fruits" },
+    { word: "Peach", meaning: "A soft round fruit with fuzzy skin", hindi: "आड़ू", category: "Fruits" },
+    { word: "Pear", meaning: "A sweet fruit that is narrow at the top and wide at the bottom", hindi: "नाशपाती", category: "Fruits" },
+    { word: "Plum", meaning: "A small round fruit with purple or red skin", hindi: "आलूबुखारा", category: "Fruits" },
+    { word: "Pomegranate", meaning: "A round fruit with a tough skin and many seeds", hindi: "अनार", category: "Fruits" },
+    { word: "Fig", meaning: "A soft sweet fruit with many small seeds", hindi: "अंजीर", category: "Fruits" },
+    { word: "Date", meaning: "A sweet brown fruit from a palm tree", hindi: "खजूर", category: "Fruits" },
+    { word: "Blueberry", meaning: "A small dark blue berry", hindi: "ब्लूबेरी", category: "Fruits" },
+    { word: "Raspberry", meaning: "A small soft red berry", hindi: "रास्पबेरी", category: "Fruits" },
+    { word: "Blackberry", meaning: "A small dark purple berry", hindi: "ब्लैकबेरी", category: "Fruits" },
+    { word: "Apricot", meaning: "A small soft orange fruit", hindi: "खुबानी", category: "Fruits" },
+    { word: "Avocado", meaning: "A green fruit with a large seed, often eaten in salads", hindi: "मक्खन फल", category: "Fruits" },
+    { word: "Coconut", meaning: "A large brown fruit with white flesh and water inside", hindi: "नारियल", category: "Fruits" },
+    { word: "Melon", meaning: "A large round fruit with sweet juicy flesh", hindi: "खरबूजा", category: "Fruits" },
+    { word: "Lychee", meaning: "A small round fruit with rough pink skin and sweet white flesh", hindi: "लीची", category: "Fruits" },
+    { word: "Custard Apple", meaning: "A sweet fruit with green skin and white creamy flesh", hindi: "सीताफल", category: "Fruits" },
+    { word: "Mulberry", meaning: "A small sweet fruit that looks like a blackberry", hindi: "शहतूत", category: "Fruits" },
+    { word: "Starfruit", meaning: "A yellow-green fruit that is star-shaped when cut", hindi: "कमरख", category: "Fruits" },
+    { word: "Dragon Fruit", meaning: "A bright pink fruit with white flesh and black seeds", hindi: "ड्रैगन फ्रूट", category: "Fruits" },
+    { word: "Passion Fruit", meaning: "A small round fruit with purple skin and yellow juicy seeds inside", hindi: "पैशन फ्रूट", category: "Fruits" },
+    { word: "Gooseberry", meaning: "A small green fruit that tastes sour", hindi: "आंवला", category: "Fruits" },
+    { word: "Jackfruit", meaning: "A very large fruit with yellow sweet flesh", hindi: "कटहल", category: "Fruits" },
+    { word: "Grapefruit", meaning: "A large round citrus fruit with yellow or pink skin", hindi: "चकोतरा", category: "Fruits" },
+    { word: "Raisin", meaning: "A dried grape", hindi: "किशमिश", category: "Fruits" },
+    { word: "Almond", meaning: "An oval nut with a hard shell", hindi: "बादाम", category: "Fruits" },
+    { word: "Cashew", meaning: "A kidney-shaped nut", hindi: "काजू", category: "Fruits" },
+    { word: "Walnut", meaning: "A nut with a hard wrinkled shell", hindi: "अखरोट", category: "Fruits" },
+    { word: "Peanut", meaning: "A small nut that grows underground", hindi: "मूंगफली", category: "Fruits" },
+    { word: "Pistachio", meaning: "A small green nut with a hard shell", hindi: "पिस्ता", category: "Fruits" },
+    { word: "Pumpkin", meaning: "A large round orange vegetable", hindi: "कद्दू", category: "Fruits" },
+    { word: "Sweet Potato", meaning: "A sweet-tasting root vegetable", hindi: "शकरकंद", category: "Fruits" },
+    { word: "Tamarind", meaning: "A sour fruit used in cooking", hindi: "इमली", category: "Fruits" },
+    { word: "Sugarcane", meaning: "A tall thick grass used to make sugar", hindi: "गन्ना", category: "Fruits" },
+    { word: "Pomelo", meaning: "A large citrus fruit similar to a grapefruit", hindi: "चकोतरा", category: "Fruits" },
+    { word: "Pears", meaning: "Sweet fruits with a bell shape", hindi: "नाशपाती", category: "Fruits" },
+    { word: "Cranberry", meaning: "A small red sour berry", hindi: "क्रैनबेरी", category: "Fruits" },
+    { word: "Lime", meaning: "A small green citrus fruit", hindi: "नींबू", category: "Fruits" },
+    { word: "Olive", meaning: "A small oval fruit used to make oil", hindi: "जैतून", category: "Fruits" },
 
-        textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; resize: none; margin-bottom: 10px; outline: none; }
-        textarea:focus { border-color: #4CAF50; }
-        button { width: 100%; padding: 14px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;}
-        button:active { background-color: #388E3C; }
-        .btn-photo-label { display: block; text-align: center; width: 100%; padding: 14px; background-color: #2196F3; color: white; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-        .btn-photo-label:active { background-color: #1976D2; }
-        .summary-box { margin-top: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px;}
-        #loader { display: none; text-align: center; color: #4CAF50; font-weight: bold; margin: 10px 0; }
+    // --- 2. VEGETABLES (50 Words) ---
+    { word: "Potato", meaning: "A round vegetable that grows underground", hindi: "आलू", category: "Vegetables" },
+    { word: "Tomato", meaning: "A soft red fruit eaten as a vegetable", hindi: "टमाटर", category: "Vegetables" },
+    { word: "Onion", meaning: "A round vegetable with a strong taste", hindi: "प्याज", category: "Vegetables" },
+    { word: "Carrot", meaning: "A long orange vegetable", hindi: "गाजर", category: "Vegetables" },
+    { word: "Spinach", meaning: "A green leafy vegetable", hindi: "पालक", category: "Vegetables" },
+    { word: "Cauliflower", meaning: "A vegetable with a white head", hindi: "फूलगोभी", category: "Vegetables" },
+    { word: "Cabbage", meaning: "A large round vegetable with thick green leaves", hindi: "पत्तागोभी", category: "Vegetables" },
+    { word: "Brinjal", meaning: "A purple vegetable (Eggplant)", hindi: "बैंगन", category: "Vegetables" },
+    { word: "Ladyfinger", meaning: "A long green vegetable (Okra)", hindi: "भिंडी", category: "Vegetables" },
+    { word: "Garlic", meaning: "A small round vegetable with a strong smell", hindi: "लहसुन", category: "Vegetables" },
+    { word: "Ginger", meaning: "A spicy root used in cooking", hindi: "अदरक", category: "Vegetables" },
+    { word: "Peas", meaning: "Small round green seeds eaten as a vegetable", hindi: "मटर", category: "Vegetables" },
+    { word: "Cucumber", meaning: "A long green vegetable with watery flesh", hindi: "खीरा", category: "Vegetables" },
+    { word: "Pumpkin", meaning: "A large round orange vegetable", hindi: "कद्दू", category: "Vegetables" },
+    { word: "Radish", meaning: "A white or red root vegetable", hindi: "मूली", category: "Vegetables" },
+    { word: "Beetroot", meaning: "A dark red root vegetable", hindi: "चुकंदर", category: "Vegetables" },
+    { word: "Capsicum", meaning: "A hollow green, red, or yellow vegetable (Bell Pepper)", hindi: "शिमला मिर्च", category: "Vegetables" },
+    { word: "Corn", meaning: "Sweet yellow seeds on a cob", hindi: "मक्का", category: "Vegetables" },
+    { word: "Broccoli", meaning: "A green vegetable with a thick stalk and flowery head", hindi: "ब्रोकली", category: "Vegetables" },
+    { word: "Mushroom", meaning: "A fungus with a stem and a round top", hindi: "मशरूम", category: "Vegetables" },
+    { word: "Turnip", meaning: "A round white root vegetable", hindi: "शलजम", category: "Vegetables" },
+    { word: "Bitter Gourd", meaning: "A green vegetable with a bitter taste", hindi: "करेला", category: "Vegetables" },
+    { word: "Bottle Gourd", meaning: "A long green vegetable", hindi: "लौकी", category: "Vegetables" },
+    { word: "Green Beans", meaning: "Long thin green vegetables", hindi: "फली", category: "Vegetables" },
+    { word: "Sweet Potato", meaning: "A sweet-tasting root vegetable", hindi: "शकरकंद", category: "Vegetables" },
+    { word: "Lettuce", meaning: "A leafy green vegetable used in salads", hindi: "सलाद पत्ता", category: "Vegetables" },
+    { word: "Celery", meaning: "A long light green vegetable", hindi: "अजवाइन", category: "Vegetables" },
+    { word: "Asparagus", meaning: "A long thin green vegetable", hindi: "शतावरी", category: "Vegetables" },
+    { word: "Zucchini", meaning: "A long green vegetable similar to a cucumber", hindi: "तोरी", category: "Vegetables" },
+    { word: "Spring Onion", meaning: "A small onion with long green leaves", hindi: "हरा प्याज", category: "Vegetables" },
+    { word: "Bottle Gourd", meaning: "A large green gourd", hindi: "लौकी", category: "Vegetables" },
+    { word: "Pointed Gourd", meaning: "A small green vegetable with white stripes", hindi: "परवल", category: "Vegetables" },
+    { word: "Cluster Beans", meaning: "Small green beans growing in clusters", hindi: "ग्वार फली", category: "Vegetables" },
+    { word: "Drumstick", meaning: "A long green vegetable from a tree", hindi: "सहजन", category: "Vegetables" },
+    { word: "Colocasia", meaning: "A root vegetable (Arbi)", hindi: "अरबी", category: "Vegetables" },
+    { word: "Yam", meaning: "A large root vegetable", hindi: "जिमीकंद", category: "Vegetables" },
+    { word: "Fenugreek", meaning: "A leafy green vegetable with a bitter taste", hindi: "मेथी", category: "Vegetables" },
+    { word: "Mustard Greens", meaning: "A leafy green vegetable", hindi: "सarson का साग", category: "Vegetables" },
+    { word: "Lettuce", meaning: "Green leaves used in salads", hindi: "लेट्यूस", category: "Vegetables" },
+    { word: "Kale", meaning: "A leafy green vegetable", hindi: "करेम साग", category: "Vegetables" },
+    { word: "Artichoke", meaning: "A green vegetable with a flower-like head", hindi: "आटिचोक", category: "Vegetables" },
+    { word: "Bamboo Shoots", meaning: "The edible shoots of bamboo", hindi: "बांस के टोटे", category: "Vegetables" },
+    { word: "Seaweed", meaning: "A plant that grows in the sea", hindi: "समुद्री घास", category: "Vegetables" },
+    { word: "Chives", meaning: "A small plant with long green leaves used for flavor", hindi: "चाइव्स", category: "Vegetables" },
+    { word: "Parsley", meaning: "A green herb used in cooking", hindi: "अजमोद", category: "Vegetables" },
+    { word: "Coriander", meaning: "A green herb used for garnishing", hindi: "धनिया", category: "Vegetables" },
+    { word: "Mint", meaning: "A green herb with a fresh smell", hindi: "पुदीना", category: "Vegetables" },
+    { word: "Curry Leaves", meaning: "Small green leaves used in Indian cooking", hindi: "करी पत्ता", category: "Vegetables" },
+    { word: "Okra", meaning: "A long green vegetable (Ladyfinger)", hindi: "भिंडी", category: "Vegetables" },
+    { word: "Red Cabbage", meaning: "A purple variety of cabbage", hindi: "लाल पत्तागोभी", category: "Vegetables" },
 
-        .quiz-question { font-size: 22px; font-weight: bold; text-align: center; margin: 20px 0; color: #333; }
-        .quiz-option { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; text-align: center; border: 2px solid #ddd; font-weight: bold; }
-        .quiz-option:hover { background: #f0f0f0; }
-        .quiz-option.correct { background: #c8e6c9; border-color: #4CAF50; color: #2E7D32; }
-        .quiz-option.wrong { background: #ffcdd2; border-color: #f44336; color: #c62828; }
-        .quiz-score { text-align: center; font-weight: bold; margin-bottom: 10px; color: #555;}
+    // --- 3. ANIMALS (50 Words) ---
+    { word: "Dog", meaning: "A common domestic animal", hindi: "कुत्ता", category: "Animals" },
+    { word: "Cat", meaning: "A small furry domestic animal", hindi: "बिल्ली", category: "Animals" },
+    { word: "Lion", meaning: "A large wild cat", hindi: "शेर", category: "Animals" },
+    { word: "Tiger", meaning: "A large wild cat with orange and black stripes", hindi: "बाघ", category: "Animals" },
+    { word: "Elephant", meaning: "A very large animal with a long trunk", hindi: "हाथी", category: "Animals" },
+    { word: "Monkey", meaning: "An animal that climbs trees", hindi: "बंदर", category: "Animals" },
+    { word: "Horse", meaning: "A large animal used for riding", hindi: "घोड़ा", category: "Animals" },
+    { word: "Cow", meaning: "A large farm animal that gives milk", hindi: "गाय", category: "Animals" },
+    { word: "Goat", meaning: "A farm animal with horns", hindi: "बकरी", category: "Animals" },
+    { word: "Bird", meaning: "An animal with wings and feathers", hindi: "पक्षी", category: "Animals" },
+    { word: "Bear", meaning: "A large heavy animal with thick fur", hindi: "भालू", category: "Animals" },
+    { word: "Deer", meaning: "A fast animal that eats grass, males have antlers", hindi: "हिरण", category: "Animals" },
+    { word: "Fox", meaning: "A wild animal similar to a small dog", hindi: "लोमड़ी", category: "Animals" },
+    { word: "Wolf", meaning: "A wild animal that looks like a dog and lives in groups", hindi: "भेड़िया", category: "Animals" },
+    { word: "Zebra", meaning: "An African horse-like animal with black and white stripes", hindi: "ज़ेबरा", category: "Animals" },
+    { word: "Giraffe", meaning: "A tall African animal with a very long neck", hindi: "जिराफ़", category: "Animals" },
+    { word: "Camel", meaning: "A large desert animal with a hump", hindi: "ऊंट", category: "Animals" },
+    { word: "Snake", meaning: "A long animal with no legs", hindi: "सांप", category: "Animals" },
+    { word: "Rabbit", meaning: "A small animal with long ears", hindi: "खरगोश", category: "Animals" },
+    { word: "Mouse", meaning: "A small animal with a pointed nose and long tail", hindi: "चूहा", category: "Animals" },
+    { word: "Frog", meaning: "A small green animal that jumps and lives near water", hindi: "मेंढक", category: "Animals" },
+    { word: "Fish", meaning: "An animal that lives in water", hindi: "मछली", category: "Animals" },
+    { word: "Butterfly", meaning: "An insect with large colorful wings", hindi: "तितली", category: "Animals" },
+    { word: "Bee", meaning: "A flying insect that makes honey", hindi: "मधुमक्खी", category: "Animals" },
+    { word: "Ant", meaning: "A small insect that lives in groups", hindi: "चींटी", category: "Animals" },
+    { word: "Spider", meaning: "A small animal with eight legs that makes webs", hindi: "मकड़ी", category: "Animals" },
+    { word: "Mosquito", meaning: "A small flying insect that bites", hindi: "मच्छर", category: "Animals" },
+    { word: "Cockroach", meaning: "A flat brown insect that lives in dirty places", hindi: "तिलचट्टा", category: "Animals" },
+    { word: "Kangaroo", meaning: "An Australian animal that jumps on its back legs", hindi: "कंगारू", category: "Animals" },
+    { word: "Panda", meaning: "A large black and white bear from China", hindi: "पांडा", category: "Animals" },
+    { word: "Penguin", meaning: "A black and white bird that cannot fly but swims", hindi: "पेंगुइन", category: "Animals" },
+    { word: "Dolphin", meaning: "A smart sea animal", hindi: "डॉल्फिन", category: "Animals" },
+    { word: "Whale", meaning: "A very large sea animal", hindi: "व्हेल", category: "Animals" },
+    { word: "Shark", meaning: "A large sea fish with sharp teeth", hindi: "शार्क", category: "Animals" },
+    { word: "Crocodile", meaning: "A large river animal with a long mouth and sharp teeth", hindi: "मगरमच्छ", category: "Animals" },
+    { word: "Turtle", meaning: "An animal with a hard shell on its back", hindi: "कछुआ", category: "Animals" },
+    { word: "Owl", meaning: "A bird that stays awake at night", hindi: "उल्लू", category: "Animals" },
+    { word: "Eagle", meaning: "A large bird with a sharp beak", hindi: "बाज़", category: "Animals" },
+    { word: "Peacock", meaning: "A large bird with beautiful blue and green feathers", hindi: "मोर", category: "Animals" },
+    { word: "Parrot", meaning: "A colorful bird that can copy human speech", hindi: "तोता", category: "Animals" },
+    { word: "Crow", meaning: "A large black bird", hindi: "कौआ", category: "Animals" },
+    { word: "Sparrow", meaning: "A small brown and grey bird", hindi: "गौरैया", category: "Animals" },
+    { word: "Sheep", meaning: "A farm animal with thick wool", hindi: "भेड़", category: "Animals" },
+    { word: "Donkey", meaning: "A farm animal similar to a small horse", hindi: "गधा", category: "Animals" },
+    { word: "Pig", meaning: "A farm animal with a fat body and short legs", hindi: "सूअर", category: "Animals" },
+    { word: "Duck", meaning: "A bird that swims in water", hindi: "बत्तख", category: "Animals" },
+    { word: "Hen", meaning: "A female chicken", hindi: "मुर्गी", category: "Animals" },
+    { word: "Squirrel", meaning: "A small animal with a long bushy tail", hindi: "गिलहरी", category: "Animals" },
+    { word: "Chameleon", meaning: "A lizard that can change its color", hindi: "गिरगिट", category: "Animals" },
+    { word: "Bat", meaning: "A small animal that flies at night", hindi: "चमगादड़", category: "Animals" },
 
-        #aiResponse { background: white; padding: 15px; border-radius: 8px; margin-top: 15px; min-height: 100px; line-height: 1.6; border: 1px solid #ddd; display: none;}
-    </style>
-</head>
-<body onload="startApp()">
+    // --- 4. BODY PARTS (50 Words) ---
+    { word: "Head", meaning: "The top part of the body", hindi: "सिर", category: "Body Parts" },
+    { word: "Eye", meaning: "The part of the body used for seeing", hindi: "आंख", category: "Body Parts" },
+    { word: "Ear", meaning: "The part of the body used for hearing", hindi: "कान", category: "Body Parts" },
+    { word: "Nose", meaning: "The part of the body used for smelling", hindi: "नाक", category: "Body Parts" },
+    { word: "Mouth", meaning: "The part of the body used for eating", hindi: "मुंह", category: "Body Parts" },
+    { word: "Hand", meaning: "The part of the body at the end of the arm", hindi: "हाथ", category: "Body Parts" },
+    { word: "Leg", meaning: "The part of the body used for walking", hindi: "पैर", category: "Body Parts" },
+    { word: "Heart", meaning: "The organ that pumps blood", hindi: "दिल", category: "Body Parts" },
+    { word: "Stomach", meaning: "The organ where food is digested", hindi: "पेट", category: "Body Parts" },
+    { word: "Hair", meaning: "The threads that grow on the head", hindi: "बाल", category: "Body Parts" },
+    { word: "Finger", meaning: "One of the five long parts on your hand", hindi: "उंगली", category: "Body Parts" },
+    { word: "Nail", meaning: "The hard part at the end of a finger", hindi: "नाखून", category: "Body Parts" },
+    { word: "Tooth", meaning: "The hard white part in the mouth used for eating", hindi: "दांत", category: "Body Parts" },
+    { word: "Tongue", meaning: "The soft part in the mouth used for tasting", hindi: "जीभ", category: "Body Parts" },
+    { word: "Lip", meaning: "Either of the two soft parts around the mouth", hindi: "होंठ", category: "Body Parts" },
+    { word: "Neck", meaning: "The part connecting the head to the body", hindi: "गर्दन", category: "Body Parts" },
+    { word: "Shoulder", meaning: "The part where the arm connects to the body", hindi: "कंधा", category: "Body Parts" },
+    { word: "Elbow", meaning: "The joint in the middle of the arm", hindi: "कोहनी", category: "Body Parts" },
+    { word: "Knee", meaning: "The joint in the middle of the leg", hindi: "घुटना", category: "Body Parts" },
+    { word: "Foot", meaning: "The part of the body at the end of the leg", hindi: "पैर", category: "Body Parts" },
+    { word: "Ankle", meaning: "The joint connecting the foot to the leg", hindi: "टखना", category: "Body Parts" },
+    { word: "Chest", meaning: "The front part of the body between the neck and stomach", hindi: "छाती", category: "Body Parts" },
+    { word: "Back", meaning: "The rear part of the body", hindi: "पीठ", category: "Body Parts" },
+    { word: "Brain", meaning: "The organ inside the head that controls the body", hindi: "दिमाग", category: "Body Parts" },
+    { word: "Lung", meaning: "The organ used for breathing", hindi: "फेफड़ा", category: "Body Parts" },
+    { word: "Liver", meaning: "A large organ in the body that cleans the blood", hindi: "जिगर", category: "Body Parts" },
+    { word: "Kidney", meaning: "An organ that removes waste from the blood", hindi: "गुर्दा", category: "Body Parts" },
+    { word: "Skin", meaning: "The outer covering of the body", hindi: "त्वचा", category: "Body Parts" },
+    { word: "Bone", meaning: "The hard parts inside the body that form the skeleton", hindi: "हड्डी", category: "Body Parts" },
+    { word: "Blood", meaning: "The red liquid that flows in the body", hindi: "खून", category: "Body Parts" },
+    { word: "Thumb", meaning: "The short thick finger on the side of the hand", hindi: "अंगूठा", category: "Body Parts" },
+    { word: "Wrist", meaning: "The joint between the hand and the arm", hindi: "कलाई", category: "Body Parts" },
+    { word: "Throat", meaning: "The front of the neck", hindi: "गला", category: "Body Parts" },
+    { word: "Chin", meaning: "The part of the face below the mouth", hindi: "ठोड़ी", category: "Body Parts" },
+    { word: "Cheek", meaning: "The soft part on each side of the face", hindi: "गाल", category: "Body Parts" },
+    { word: "Forehead", meaning: "The part of the face above the eyes", hindi: "माथा", category: "Body Parts" },
+    { word: "Eyebrow", meaning: "The line of hair above the eye", hindi: "भौंह", category: "Body Parts" },
+    { word: "Eyelash", meaning: "One of the short hairs on the eyelid", hindi: "पलक", category: "Body Parts" },
+    { word: "Palm", meaning: "The inner surface of the hand", hindi: "हथेली", category: "Body Parts" },
+    { word: "Heel", meaning: "The back part of the foot", hindi: "एड़ी", category: "Body Parts" },
+    { word: "Toe", meaning: "One of the five parts at the end of the foot", hindi: "पैर की उंगली", category: "Body Parts" },
+    { word: "Spine", meaning: "The line of bones down the middle of the back", hindi: "रीढ़", category: "Body Parts" },
+    { word: "Muscle", meaning: "Body tissue that produces movement", hindi: "मांसपेशी", category: "Body Parts" },
+    { word: "Artery", meaning: "A tube that carries blood from the heart", hindi: "धमनी", category: "Body Parts" },
+    { word: "Vein", meaning: "A tube that carries blood to the heart", hindi: "नस", category: "Body Parts" },
+    { word: "Nerve", meaning: "A fiber that carries messages to the brain", hindi: "तंत्रिका", category: "Body Parts" },
+    { word: "Skull", meaning: "The bones of the head", hindi: "खोपड़ी", category: "Body Parts" },
+    { word: "Jaw", meaning: "The lower bone of the face", hindi: "जबड़ा", category: "Body Parts" },
+    { word: "Waist", meaning: "The part of the body between the chest and hips", hindi: "कमर", category: "Body Parts" },
+    { word: "Hip", meaning: "The part of the body below the waist", hindi: "कूल्हा", category: "Body Parts" },
 
-    <div class="header">📚My AI Learn Hub App</div>
-    <div class="daily-word" id="dailyWord">Word of the Day...</div>
+    // --- 5. COLORS (50 Words) ---
+    { word: "Red", meaning: "The color of blood", hindi: "लाल", category: "Colors" },
+    { word: "Blue", meaning: "The color of the sky", hindi: "नीला", category: "Colors" },
+    { word: "Green", meaning: "The color of grass", hindi: "हरा", category: "Colors" },
+    { word: "Yellow", meaning: "The color of the sun", hindi: "पीला", category: "Colors" },
+    { word: "Black", meaning: "The darkest color", hindi: "काला", category: "Colors" },
+    { word: "White", meaning: "The lightest color", hindi: "सफेद", category: "Colors" },
+    { word: "Orange", meaning: "The color between red and yellow", hindi: "नारंगी", category: "Colors" },
+    { word: "Pink", meaning: "A pale red color", hindi: "गुलाबी", category: "Colors" },
+    { word: "Brown", meaning: "The color of wood", hindi: "भूरा", category: "Colors" },
+    { word: "Purple", meaning: "The color between red and blue", hindi: "बैंगनी", category: "Colors" },
+    { word: "Grey", meaning: "The color between black and white", hindi: "स्लेटी", category: "Colors" },
+    { word: "Gold", meaning: "A shiny yellow color", hindi: "सुनहरा", category: "Colors" },
+    { word: "Silver", meaning: "A shiny grey color", hindi: "चांदी जैसा", category: "Colors" },
+    { word: "Maroon", meaning: "A dark brownish-red color", hindi: "मरून", category: "Colors" },
+    { word: "Navy Blue", meaning: "A very dark blue color", hindi: "गहरा नीला", category: "Colors" },
+    { word: "Sky Blue", meaning: "A light blue color", hindi: "आसमानी", category: "Colors" },
+    { word: "Teal", meaning: "A blue-green color", hindi: "हरा-नीला", category: "Colors" },
+    { word: "Turquoise", meaning: "A bright blue-green color", hindi: "फ़िरोज़ी", category: "Colors" },
+    { word: "Lavender", meaning: "A light purple color", hindi: "हल्का बैंगनी", category: "Colors" },
+    { word: "Magenta", meaning: "A bright purplish-red color", hindi: "गहरा गुलाबी", category: "Colors" },
+    { word: "Violet", meaning: "A bluish-purple color", hindi: "बैंगनी", category: "Colors" },
+    { word: "Indigo", meaning: "A deep blue color", hindi: "नील", category: "Colors" },
+    { word: "Cyan", meaning: "A greenish-blue color", hindi: "सियान", category: "Colors" },
+    { word: "Olive", meaning: "A yellowish-green color", hindi: "जैतूनी", category: "Colors" },
+    { word: "Beige", meaning: "A pale sandy color", hindi: "बेज", category: "Colors" },
+    { word: "Cream", meaning: "A pale yellowish-white color", hindi: "क्रीम", category: "Colors" },
+    { word: "Ivory", meaning: "A creamy white color", hindi: "हाथीदांत", category: "Colors" },
+    { word: "Coral", meaning: "A pinkish-orange color", hindi: "मूंगा", category: "Colors" },
+    { word: "Peach", meaning: "A light pinkish-orange color", hindi: "आड़ू जैसा", category: "Colors" },
+    { word: "Burgundy", meaning: "A dark red color", hindi: "गहरा लाल", category: "Colors" },
+    { word: "Crimson", meaning: "A rich deep red color", hindi: "गहरा लाल", category: "Colors" },
+    { word: "Scarlet", meaning: "A bright red color", hindi: "लाल", category: "Colors" },
+    { word: "Ruby", meaning: "A deep red color", hindi: "माणिक", category: "Colors" },
+    { word: "Emerald", meaning: "A bright green color", hindi: "पन्ना", category: "Colors" },
+    { word: "Jade", meaning: "A light green color", hindi: "जेड", category: "Colors" },
+    { word: "Mint", meaning: "A pale green color", hindi: "पुदीना", category: "Colors" },
+    { word: "Lime", meaning: "A bright greenish-yellow color", hindi: "नींबू", category: "Colors" },
+    { word: "Mustard", meaning: "A dark yellow color", hindi: "सरसों", category: "Colors" },
+    { word: "Amber", meaning: "A yellowish-orange color", hindi: "अंबर", category: "Colors" },
+    { word: "Copper", meaning: "A reddish-brown color", hindi: "तांबा", category: "Colors" },
+    { word: "Bronze", meaning: "A brownish metallic color", hindi: "कांसा", category: "Colors" },
+    { word: "Rust", meaning: "A reddish-brown color", hindi: "जंग", category: "Colors" },
+    { word: "Charcoal", meaning: "A very dark grey color", hindi: "कोयला", category: "Colors" },
+    { word: "Slate", meaning: "A dark grey color", hindi: "स्लेटी", category: "Colors" },
+    { word: "Ash", meaning: "A light grey color", hindi: "राख", category: "Colors" },
+    { word: "Platinum", meaning: "A silver-grey color", hindi: "प्लैटिनम", category: "Colors" },
+    { word: "Pearl", meaning: "An off-white color", hindi: "मोती", category: "Colors" },
+    { word: "Tan", meaning: "A pale yellowish-brown color", hindi: "पीला-भूरा", category: "Colors" },
+    { word: "Khaki", meaning: "A light brown color", hindi: "खाकी", category: "Colors" },
+    { word: "Denim", meaning: "A dark blue color", hindi: "डेनिम", category: "Colors" },
 
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('dict')">📖 Dict</div>
-        <div class="tab" onclick="switchTab('learn')">📚 Learn</div>
-        <div class="tab" onclick="switchTab('ai')">🤖 AI Tutor</div>
-        <div class="tab" onclick="switchTab('summ')">📄 Summary</div>
-        <div class="tab" onclick="switchTab('quiz')">🧠 Quiz</div>
-    </div>
+    // --- 6. DAILY USE (50 Words) ---
+    { word: "Water", meaning: "A clear liquid essential for life", hindi: "पानी", category: "Daily Use" },
+    { word: "Food", meaning: "Things that people eat", hindi: "खाना", category: "Daily Use" },
+    { word: "House", meaning: "A building for people to live in", hindi: "घर", category: "Daily Use" },
+    { word: "Book", meaning: "Pages with text bound together", hindi: "किताब", category: "Daily Use" },
+    { word: "Pen", meaning: "An object used for writing", hindi: "कलम", category: "Daily Use" },
+    { word: "Bag", meaning: "A container used for carrying things", hindi: "बस्ता", category: "Daily Use" },
+    { word: "Chair", meaning: "A seat for one person", hindi: "कुर्सी", category: "Daily Use" },
+    { word: "Table", meaning: "Furniture with a flat top", hindi: "मेज", category: "Daily Use" },
+    { word: "Phone", meaning: "A device used for communication", hindi: "फोन", category: "Daily Use" },
+    { word: "Money", meaning: "Coins or notes used to buy things", hindi: "पैसा", category: "Daily Use" },
+    { word: "Clothes", meaning: "Items worn on the body", hindi: "कपड़े", category: "Daily Use" },
+    { word: "Shoes", meaning: "Outer coverings for feet", hindi: "जूते", category: "Daily Use" },
+    { word: "Watch", meaning: "A device worn to show time", hindi: "घड़ी", category: "Daily Use" },
+    { word: "Key", meaning: "A small metal object used to open a lock", hindi: "चाबी", category: "Daily Use" },
+    { word: "Lock", meaning: "A device used to secure a door", hindi: "ताला", category: "Daily Use" },
+    { word: "Door", meaning: "A movable barrier used to enter a room", hindi: "दरवाजा", category: "Daily Use" },
+    { word: "Window", meaning: "An opening in a wall with glass", hindi: "खिड़की", category: "Daily Use" },
+    { word: "Bed", meaning: "Furniture used for sleeping", hindi: "बिस्तर", category: "Daily Use" },
+    { word: "Pillow", meaning: "A soft cushion for the head", hindi: "तकिया", category: "Daily Use" },
+    { word: "Blanket", meaning: "A warm cover for a bed", hindi: "कंबल", category: "Daily Use" },
+    { word: "Towel", meaning: "A piece of cloth used for drying", hindi: "तौलिया", category: "Daily Use" },
+    { word: "Soap", meaning: "A substance used for washing", hindi: "साबुन", category: "Daily Use" },
+    { word: "Brush", meaning: "A tool used for cleaning or tidying hair", hindi: "ब्रश", category: "Daily Use" },
+    { word: "Comb", meaning: "A tool used to arrange hair", hindi: "कंघी", category: "Daily Use" },
+    { word: "Mirror", meaning: "A glass surface that reflects images", hindi: "आईना", category: "Daily Use" },
+    { word: "Cup", meaning: "A small container used for drinking", hindi: "कप", category: "Daily Use" },
+    { word: "Plate", meaning: "A flat dish used for eating food", hindi: "थाली", category: "Daily Use" },
+    { word: "Spoon", meaning: "A tool used for eating liquid food", hindi: "चम्मच", category: "Daily Use" },
+    { word: "Fork", meaning: "A tool with points used for eating", hindi: "कांटा", category: "Daily Use" },
+    { word: "Knife", meaning: "A tool with a blade used for cutting", hindi: "चाकू", category: "Daily Use" },
+    { word: "Bottle", meaning: "A container used for storing liquids", hindi: "बोतल", category: "Daily Use" },
+    { word: "Box", meaning: "A container with straight sides", hindi: "डिब्बा", category: "Daily Use" },
+    { word: "Umbrella", meaning: "A device used to protect from rain", hindi: "छाता", category: "Daily Use" },
+    { word: "Fan", meaning: "A device that creates a current of air", hindi: "पंखा", category: "Daily Use" },
+    { word: "Light", meaning: "A device that produces brightness", hindi: "बत्ती", category: "Daily Use" },
+    { word: "Clock", meaning: "A device used to measure time", hindi: "दीवार घड़ी", category: "Daily Use" },
+    { word: "Computer", meaning: "An electronic machine for storing data", hindi: "कंप्यूटर", category: "Daily Use" },
+    { word: "Television", meaning: "A device for watching broadcasts", hindi: "टीवी", category: "Daily Use" },
+    { word: "Refrigerator", meaning: "A machine for keeping food cold", hindi: "फ्रिज", category: "Daily Use" },
+    { word: "Stove", meaning: "A device used for cooking food", hindi: "चूल्हा", category: "Daily Use" },
+    { word: "Pan", meaning: "A metal container used for cooking", hindi: "कड़ाही", category: "Daily Use" },
+    { word: "Pot", meaning: "A deep round container used for cooking", hindi: "बर्तन", category: "Daily Use" },
+    { word: "Bucket", meaning: "A round container with a handle for carrying water", hindi: "बाल्टी", category: "Daily Use" },
+    { word: "Broom", meaning: "A tool used for sweeping floors", hindi: "झाड़ू", category: "Daily Use" },
+    { word: "Dustbin", meaning: "A container for throwing away waste", hindi: "कूड़ेदान", category: "Daily Use" },
+    { word: "Paper", meaning: "Thin material used for writing or wrapping", hindi: "कागज", category: "Daily Use" },
+    { word: "Pencil", meaning: "A writing tool made of wood and graphite", hindi: "पेंसिल", category: "Daily Use" },
+    { word: "Eraser", meaning: "A tool used to rub out pencil marks", hindi: "रबर", category: "Daily Use" },
+    { word: "Scale", meaning: "A tool used to measure length", hindi: "पैमाना", category: "Daily Use" },
+    { word: "Glue", meaning: "A sticky substance used for joining things", hindi: "गोंद", category: "Daily Use" },
+    { word: "Scissors", meaning: "A tool with two blades used for cutting", hindi: "कैंची", category: "Daily Use" },
 
-    <div id="dict" class="content active">
-        <input type="text" id="searchWord" placeholder="English word search karein..." onkeyup="searchDictionary()">
-        <div id="results"></div>
-    </div>
+    // --- 7. VERBS (50 Words) ---
+    { word: "Run", meaning: "To move quickly on foot", hindi: "दौड़ना", category: "Verbs" },
+    { word: "Walk", meaning: "To move at a regular pace", hindi: "चलना", category: "Verbs" },
+    { word: "Eat", meaning: "To put food in the mouth", hindi: "खाना", category: "Verbs" },
+    { word: "Drink", meaning: "To take liquid into the mouth", hindi: "पीना", category: "Verbs" },
+    { word: "Sleep", meaning: "To rest with eyes closed", hindi: "सोना", category: "Verbs" },
+    { word: "Read", meaning: "To look at and understand text", hindi: "पढ़ना", category: "Verbs" },
+    { word: "Write", meaning: "To mark letters on a surface", hindi: "लिखना", category: "Verbs" },
+    { word: "Speak", meaning: "To say words", hindi: "बोलना", category: "Verbs" },
+    { word: "Listen", meaning: "To give attention to sound", hindi: "सुनना", category: "Verbs" },
+    { word: "Play", meaning: "To do something for fun", hindi: "खेलना", category: "Verbs" },
+    { word: "Jump", meaning: "To push oneself off the ground", hindi: "कूदना", category: "Verbs" },
+    { word: "Swim", meaning: "To move through water", hindi: "तैरना", category: "Verbs" },
+    { word: "Fly", meaning: "To move through the air", hindi: "उड़ना", category: "Verbs" },
+    { word: "Sing", meaning: "To make musical sounds with the voice", hindi: "गाना", category: "Verbs" },
+    { word: "Dance", meaning: "To move rhythmically to music", hindi: "नाचना", category: "Verbs" },
+    { word: "Draw", meaning: "To produce a picture with a pen or pencil", hindi: "चित्र बनाना", category: "Verbs" },
+    { word: "Cook", meaning: "To prepare food by heating", hindi: "खाना पकाना", category: "Verbs" },
+    { word: "Clean", meaning: "To remove dirt", hindi: "साफ करना", category: "Verbs" },
+    { word: "Wash", meaning: "To clean with water", hindi: "धोना", category: "Verbs" },
+    { word: "Buy", meaning: "To get something by paying money", hindi: "खरीदना", category: "Verbs" },
+    { word: "Sell", meaning: "To give something in exchange for money", hindi: "बेचना", category: "Verbs" },
+    { word: "Give", meaning: "To hand something to someone", hindi: "देना", category: "Verbs" },
+    { word: "Take", meaning: "To get something into one's hands", hindi: "लेना", category: "Verbs" },
+    { word: "Open", meaning: "To move something so it is not closed", hindi: "खोलना", category: "Verbs" },
+    { word: "Close", meaning: "To move something so it is shut", hindi: "बंद करना", category: "Verbs" },
+    { word: "Push", meaning: "To press something to move it away", hindi: "धक्का देना", category: "Verbs" },
+    { word: "Pull", meaning: "To move something towards you", hindi: "खींचना", category: "Verbs" },
+    { word: "Throw", meaning: "To send something through the air", hindi: "फेंकना", category: "Verbs" },
+    { word: "Catch", meaning: "To stop and hold a moving object", hindi: "पकड़ना", category: "Verbs" },
+    { word: "Laugh", meaning: "To make sounds showing happiness", hindi: "हंसना", category: "Verbs" },
+    { word: "Cry", meaning: "To shed tears", hindi: "रोना", category: "Verbs" },
+    { word: "Smile", meaning: "To make a happy expression with the mouth", hindi: "मुस्कुराना", category: "Verbs" },
+    { word: "Think", meaning: "To use the mind to consider something", hindi: "सोचना", category: "Verbs" },
+    { word: "Know", meaning: "To have information in the mind", hindi: "जानना", category: "Verbs" },
+    { word: "Understand", meaning: "To know the meaning of something", hindi: "समझना", category: "Verbs" },
+    { word: "Teach", meaning: "To give knowledge to someone", hindi: "सिखाना", category: "Verbs" },
+    { word: "Learn", meaning: "To gain knowledge or skill", hindi: "सीखना", category: "Verbs" },
+    { word: "Find", meaning: "To discover something", hindi: "ढूँढना", category: "Verbs" },
+    { word: "Lose", meaning: "To no longer have something", hindi: "खोना", category: "Verbs" },
+    { word: "Win", meaning: "To be successful in a game", hindi: "जीतना", category: "Verbs" },
+    { word: "Stand", meaning: "To be on your feet", hindi: "खड़ा होना", category: "Verbs" },
+    { word: "Sit", meaning: "To rest on your bottom", hindi: "बैठना", category: "Verbs" },
+    { word: "Wake up", meaning: "To stop sleeping", hindi: "जागना", category: "Verbs" },
+    { word: "Wait", meaning: "To stay in a place until something happens", hindi: "इंतजार करना", category: "Verbs" },
+    { word: "Help", meaning: "To make it easier for someone to do something", hindi: "मदद करना", category: "Verbs" },
+    { word: "Work", meaning: "To do a job or activity", hindi: "काम करना", category: "Verbs" },
+    { word: "Rest", meaning: "To relax after activity", hindi: "आराम करना", category: "Verbs" },
+    { word: "Start", meaning: "To begin doing something", hindi: "शुरू करना", category: "Verbs" },
+    { word: "Finish", meaning: "To complete something", hindi: "खत्म करना", category: "Verbs" },
+    { word: "Ask", meaning: "To say something as a question", hindi: "पूछना", category: "Verbs" },
 
-    <div id="learn" class="content">
-        <h3 style="text-align:center; color:#555; margin-top:0;">Saare Words Padhein</h3>
-        <div id="allWordsList"></div>
-    </div>
+    // --- 8. EMOTIONS (50 Words) ---
+    { word: "Happy", meaning: "Feeling pleasure", hindi: "खुश", category: "Emotions" },
+    { word: "Sad", meaning: "Feeling sorrow", hindi: "दुखी", category: "Emotions" },
+    { word: "Angry", meaning: "Feeling strong displeasure", hindi: "गुस्सा", category: "Emotions" },
+    { word: "Scared", meaning: "Feeling fear", hindi: "डरा हुआ", category: "Emotions" },
+    { word: "Surprised", meaning: "Feeling sudden shock", hindi: "आश्चर्यचकित", category: "Emotions" },
+    { word: "Tired", meaning: "Feeling need of rest", hindi: "थका हुआ", category: "Emotions" },
+    { word: "Excited", meaning: "Feeling very enthusiastic", hindi: "उत्साहित", category: "Emotions" },
+    { word: "Bored", meaning: "Feeling uninterested", hindi: "ऊबा हुआ", category: "Emotions" },
+    { word: "Confused", meaning: "Unable to understand", hindi: "उलझन में", category: "Emotions" },
+    { word: "Calm", meaning: "Feeling peaceful", hindi: "शांत", category: "Emotions" },
+    { word: "Anxious", meaning: "Feeling worried", hindi: "चिंतित", category: "Emotions" },
+    { word: "Nervous", meaning: "Feeling easily frightened or worried", hindi: "घबराया हुआ", category: "Emotions" },
+    { word: "Jealous", meaning: "Feeling unhappy because someone has something you want", hindi: "ईर्ष्यालु", category: "Emotions" },
+    { word: "Lonely", meaning: "Feeling sad because you are alone", hindi: "अकेला", category: "Emotions" },
+    { word: "Grateful", meaning: "Feeling thankful", hindi: "आभारी", category: "Emotions" },
+    { word: "Proud", meaning: "Feeling pleased about something you have done", hindi: "गर्वित", category: "Emotions" },
+    { word: "Guilty", meaning: "Feeling that you have done something wrong", hindi: "दोषी", category: "Emotions" },
+    { word: "Hopeful", meaning: "Feeling that something good might happen", hindi: "आशावान", category: "Emotions" },
+    { word: "Disappointed", meaning: "Sad because something was not as good as expected", hindi: "निराश", category: "Emotions" },
+    { word: "Embarrassed", meaning: "Feeling ashamed or shy", hindi: "शर्मिंदा", category: "Emotions" },
+    { word: "Frustrated", meaning: "Feeling annoyed because you cannot do something", hindi: "हताश", category: "Emotions" },
+    { word: "Content", meaning: "Feeling happy and satisfied", hindi: "संतुष्ट", category: "Emotions" },
+    { word: "Curious", meaning: "Wanting to know or learn something", hindi: "जिज्ञासु", category: "Emotions" },
+    { word: "Enthusiastic", meaning: "Feeling very interested and excited", hindi: "उत्साही", category: "Emotions" },
+    { word: "Exhausted", meaning: "Feeling extremely tired", hindi: "अत्यधिक थका हुआ", category: "Emotions" },
+    { word: "Frightened", meaning: "Feeling afraid", hindi: "भयभीत", category: "Emotions" },
+    { word: "Generous", meaning: "Willing to give more than is necessary", hindi: "उदार", category: "Emotions" },
+    { word: "Gentle", meaning: "Kind and calm", hindi: "कोमल", category: "Emotions" },
+    { word: "Grumpy", meaning: "Bad-tempered", hindi: "चिड़चिड़ा", category: "Emotions" },
+    { word: "Harmonious", meaning: "Peaceful and agreeing", hindi: "सामंजस्यपूर्ण", category: "Emotions" },
+    { word: "Insecure", meaning: "Not confident about yourself", hindi: "असुरक्षित", category: "Emotions" },
+    { word: "Joyful", meaning: "Feeling great happiness", hindi: "आनंदमय", category: "Emotions" },
+    { word: "Kind", meaning: "Caring and helpful", hindi: "दयालु", category: "Emotions" },
+    { word: "Loving", meaning: "Feeling or showing love", hindi: "प्यार करने वाला", category: "Emotions" },
+    { word: "Miserable", meaning: "Very unhappy", hindi: "बहुत दुखी", category: "Emotions" },
+    { word: "Optimistic", meaning: "Expecting good things to happen", hindi: "आशावादी", category: "Emotions" },
+    { word: "Pessimistic", meaning: "Expecting bad things to happen", hindi: "निराशावादी", category: "Emotions" },
+    { word: "Relaxed", meaning: "Feeling calm and not worried", hindi: "तनावमुक्त", category: "Emotions" },
+    { word: "Relieved", meaning: "Feeling glad that something is over", hindi: "राहत महसूस करना", category: "Emotions" },
+    { word: "Satisfied", meaning: "Feeling that something is good enough", hindi: "संतुष्ट", category: "Emotions" },
+    { word: "Shocked", meaning: "Feeling very surprised", hindi: "स्तब्ध", category: "Emotions" },
+    { word: "Shy", meaning: "Nervous about meeting people", hindi: "शर्मीला", category: "Emotions" },
+    { word: "Stressed", meaning: "Feeling very worried and pressured", hindi: "तनावग्रस्त", category: "Emotions" },
+    { word: "Sympathetic", meaning: "Showing that you understand someone's problems", hindi: "सहानुभूतिपूर्ण", category: "Emotions" },
+    { word: "Thankful", meaning: "Feeling grateful", hindi: "कृतज्ञ", category: "Emotions" },
+    { word: "Thoughtful", meaning: "Showing consideration for others", hindi: "विचारशील", category: "Emotions" },
+    { word: "Upset", meaning: "Unhappy or disappointed", hindi: "परेशान", category: "Emotions" },
+    { word: "Vulnerable", meaning: "Easily hurt physically or emotionally", hindi: "कमजोर", category: "Emotions" },
+    { word: "Worried", meaning: "Feeling anxious", hindi: "चिंतित", category: "Emotions" },
+    { word: "Zealous", meaning: "Showing great energy for a cause", hindi: "उत्साही", category: "Emotions" },
 
-    <div id="ai" class="content">
-        <h3 style="text-align:center; color:#555; margin-top:0;">AI se Madad Lein</h3>
-        <textarea id="aiInput" placeholder="Example: Mujhe 'Abundant' shabd ka matlab aur ek sentence mein use karke samjhao..." style="height: 80px;"></textarea>
-        <button onclick="askAI()" style="background-color: #9C27B0;">Ask AI ✨</button>
-        
-        <div id="aiLoader" style="display:none; text-align:center; color:#9C27B0; font-weight:bold; margin: 10px 0;">🤖 AI soch raha hai...</div>
-        <div id="aiResponse"></div>
-    </div>
+    // --- 9. ACADEMIC (50 Words) ---
+    { word: "Study", meaning: "To learn about a subject", hindi: "अध्ययन", category: "Academic" },
+    { word: "Teacher", meaning: "A person who teaches", hindi: "शिक्षक", category: "Academic" },
+    { word: "Student", meaning: "A person who studies", hindi: "छात्र", category: "Academic" },
+    { word: "School", meaning: "A place for learning", hindi: "स्कूल", category: "Academic" },
+    { word: "College", meaning: "An institution of higher education", hindi: "कॉलेज", category: "Academic" },
+    { word: "Exam", meaning: "A test of knowledge", hindi: "परीक्षा", category: "Academic" },
+    { word: "Result", meaning: "The outcome of an exam", hindi: "परिणाम", category: "Academic" },
+    { word: "Question", meaning: "A sentence asking for information", hindi: "प्रश्न", category: "Academic" },
+    { word: "Answer", meaning: "A reply to a question", hindi: "उत्तर", category: "Academic" },
+    { word: "Knowledge", meaning: "Information and understanding", hindi: "ज्ञान", category: "Academic" },
+    { word: "Education", meaning: "The process of receiving or giving systematic instruction", hindi: "शिक्षा", category: "Academic" },
+    { word: "Homework", meaning: "Schoolwork that a student is required to do at home", hindi: "गृहकार्य", category: "Academic" },
+    { word: "Class", meaning: "A group of students taught together", hindi: "कक्षा", category: "Academic" },
+    { word: "Library", meaning: "A building or room containing collections of books", hindi: "पुस्तकालय", category: "Academic" },
+    { word: "Dictionary", meaning: "A book that lists words and their meanings", hindi: "शब्दकोश", category: "Academic" },
+    { word: "Subject", meaning: "A branch of knowledge studied", hindi: "विषय", category: "Academic" },
+    { word: "Degree", meaning: "An academic rank conferred by a college", hindi: "डिग्री", category: "Academic" },
+    { word: "Language", meaning: "The method of human communication", hindi: "भाषा", category: "Academic" },
+    { word: "Grammar", meaning: "The whole system of rules of a language", hindi: "व्याकरण", category: "Academic" },
+    { word: "Vocabulary", meaning: "The body of words used in a particular language", hindi: "शब्दावली", category: "Academic" },
+    { word: "Alphabet", meaning: "A set of letters used in a language", hindi: "वर्णमाला", category: "Academic" },
+    { word: "Sentence", meaning: "A set of words that is complete in itself", hindi: "वाक्य", category: "Academic" },
+    { word: "Paragraph", meaning: "A distinct section of a piece of writing", hindi: "अनुच्छेद", category: "Academic" },
+    { word: "Essay", meaning: "A short piece of writing on a particular subject", hindi: "निबंध", category: "Academic" },
+    { word: "Poem", meaning: "A piece of writing in verse", hindi: "कविता", category: "Academic" },
+    { word: "Story", meaning: "An account of imaginary or real events", hindi: "कहानी", category: "Academic" },
+    { word: "Notebook", meaning: "A book of blank pages for writing notes", hindi: "नोटबुक", category: "Academic" },
+    { word: "Stationary", meaning: "Writing and other office materials", hindi: "स्टेशनरी", category: "Academic" },
+    { word: "Blackboard", meaning: "A board with a dark surface for writing on", hindi: "ब्लैकबोर्ड", category: "Academic" },
+    { word: "Chalk", meaning: "A soft white limestone used for writing", hindi: "चॉक", category: "Academic" },
+    { word: "Lesson", meaning: "An amount of teaching given at one time", hindi: "पाठ", category: "Academic" },
+    { word: "Chapter", meaning: "A main division of a book", hindi: "अध्याय", category: "Academic" },
+    { word: "Page", meaning: "One side of a sheet of paper", hindi: "पृष्ठ", category: "Academic" },
+    { word: "Word", meaning: "A single distinct meaningful element of speech", hindi: "शब्द", category: "Academic" },
+    { word: "Letter", meaning: "A character representing one or more sounds", hindi: "अक्षर", category: "Academic" },
+    { word: "Spelling", meaning: "The process or activity of writing a word correctly", hindi: "वर्तनी", category: "Academic" },
+    { word: "Meaning", meaning: "What is meant by a word, text, or concept", hindi: "अर्थ", category: "Academic" },
+    { word: "Pronunciation", meaning: "The way in which a word is pronounced", hindi: "उच्चारण", category: "Academic" },
+    { word: "Translate", meaning: "To express the sense of words in another language", hindi: "अनुवाद करना", category: "Academic" },
+    { word: "Practice", meaning: "The customary, habitual, or expected procedure", hindi: "अभ्यास", category: "Academic" },
+    { word: "Mistake", meaning: "An act or judgment that is misguided or wrong", hindi: "गलती", category: "Academic" },
+    { word: "Correct", meaning: "Free from error; in accordance with fact", hindi: "सही", category: "Academic" },
+    { word: "Revision", meaning: "The action of revising something", hindi: "पुनरावृत्ति", category: "Academic" },
+    { word: "Assignment", meaning: "A task or piece of work allocated to someone", hindi: "कार्यभार", category: "Academic" },
+    { word: "Project", meaning: "An individual or collaborative enterprise", hindi: "परियोजना", category: "Academic" },
+    { word: "Research", meaning: "The systematic investigation into materials", hindi: "अनुसंधान", category: "Academic" },
+    { word: "Science", meaning: "The intellectual and practical activity encompassing the systematic study", hindi: "विज्ञान", category: "Academic" },
+    { word: "Mathematics", meaning: "The abstract science of number, quantity, and space", hindi: "गणित", category: "Academic" },
+    { word: "History", meaning: "The study of past events", hindi: "इतिहास", category: "Academic" },
+    { word: "Geography", meaning: "The study of the physical features of the earth", hindi: "भूगोल", category: "Academic" },
+    { word: "Examination", meaning: "A formal test of a person's knowledge", hindi: "परीक्षा", category: "Academic" },
 
-    <div id="summ" class="content">
-        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="processImage()">
-        <label for="imageInput" class="btn-photo-label">📷 Photo se Text Nikalein</label>
-        <div id="loader">⏳ Photo padhi ja rahi hai...</div>
-        <textarea id="summaryInput" placeholder="Yahan English text paste karein..."></textarea>
-        <button onclick="generateSummary()">Generate Summary</button>
-        <div id="summaryOutput" class="summary-box" style="display:none;"></div>
-    </div>
-
-    <div id="quiz" class="content">
-        <div class="quiz-score" id="quizScore">Score: 0</div>
-        <div class="quiz-question" id="quizQuestion">Loading...</div>
-        <div id="quizOptions"></div>
-        <button onclick="loadQuiz()" style="background-color: #ff9800; margin-top: 10px;">Next Question 🔄</button>
-    </div>
-
-    <script>
-        var GEMINI_API_KEY = "YAHAN_APNI_API_KEY_PASTE_KAREIN";
-
-        var wordList = [
-            { word: "abundant", meaning: "existing in large quantities", hindi: "बहुत अधिक" },
-            { word: "benevolent", meaning: "kind and generous", hindi: "दयालु" },
-            { word: "crucial", meaning: "extremely important", hindi: "महत्वपूर्ण" },
-            { word: "diligent", meaning: "hardworking and careful", hindi: "मेहनती" },
-            { word: "eloquent", meaning: "fluent and persuasive in speech", hindi: "वाक्पटु" },
-            { word: "futile", meaning: "incapable of producing any useful result", hindi: "व्यर्थ" },
-            { word: "genuine", meaning: "truly what something is said to be", hindi: "असली" },
-            { word: "humble", meaning: "having a modest estimate of one's own importance", hindi: "विनम्र" },
-            { word: "inevitable", meaning: "certain to happen", hindi: "अनिवार्य" },
-            { word: "lucid", meaning: "expressed clearly; easy to understand", hindi: "स्पष्ट" }
-        ];
-
-        function switchTab(tabId) {
-            var tabs = document.querySelectorAll('.tab');
-            var contents = document.querySelectorAll('.content');
-            for(var i=0; i<tabs.length; i++) { tabs[i].classList.remove('active'); }
-            for(var i=0; i<contents.length; i++) { contents[i].classList.remove('active'); }
-            
-            if(tabId === 'dict') { tabs[0].classList.add('active'); document.getElementById('dict').classList.add('active'); }
-            else if(tabId === 'learn') { tabs[1].classList.add('active'); document.getElementById('learn').classList.add('active'); }
-            else if(tabId === 'ai') { tabs[2].classList.add('active'); document.getElementById('ai').classList.add('active'); }
-            else if(tabId === 'summ') { tabs[3].classList.add('active'); document.getElementById('summ').classList.add('active'); }
-            else { tabs[4].classList.add('active'); document.getElementById('quiz').classList.add('active'); }
-        }
-
-        function searchDictionary() {
-            var query = document.getElementById('searchWord').value.toLowerCase();
-            var resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = "";
-            if(query === "") return;
-
-            var found = false;
-            var htmlContent = "";
-            
-            for (var i = 0; i < wordList.length; i++) {
-                if (wordList[i].word.toLowerCase().indexOf(query) !== -1) {
-                    htmlContent += "<div class='word-card'><div class='word-title'>" + wordList[i].word + "</div><div class='word-hindi'>हिंदी: " + wordList[i].hindi + "</div><div class='word-meaning'>" + wordList[i].meaning + "</div></div>";
-                    found = true;
-                }
-            }
-            if (!found) { resultsDiv.innerHTML = "<p style='text-align:center; color:#777;'>Koi word nahi mila.</p>"; } 
-            else { resultsDiv.innerHTML = htmlContent; }
-        }
-
-        function loadAllWords() {
-            var container = document.getElementById('allWordsList');
-            var htmlContent = "";
-            for (var i = 0; i < wordList.length; i++) {
-                htmlContent += `<div class='word-card'><div class='word-title'>${wordList[i].word}</div><div class='word-hindi'>हिंदी: ${wordList[i].hindi}</div><div class='word-meaning'>${wordList[i].meaning}</div></div>`;
-            }
-            container.innerHTML = htmlContent;
-        }
-
-        async function askAI() {
-            var prompt = document.getElementById('aiInput').value;
-            var responseDiv = document.getElementById('aiResponse');
-            var loader = document.getElementById('aiLoader');
-
-            if (prompt === "") { alert("Kripya kuch likhein!"); return; }
-            if (GEMINI_API_KEY === "YAHAN_APNI_API_KEY_PASTE_KAREIN") { alert("Kripya code mein apni API Key daalein."); return; }
-
-            responseDiv.style.display = "none";
-            loader.style.display = "block";
-
-            var fullPrompt = "You are a helpful English tutor for Indian students. Answer the following in a mix of simple English and Hindi (Hinglish), and keep it short: " + prompt;
-
-            try {
-                var response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                });
-
-                var data = await response.json();
-                if(data.candidates && data.candidates[0].content.parts[0].text) {
-                    var aiText = data.candidates[0].content.parts[0].text.replace(/\n/g, "<br>");
-                    responseDiv.innerHTML = aiText;
-                    responseDiv.style.display = "block";
-                } else {
-                    responseDiv.innerHTML = "AI abhi jawab nahi de paaya.";
-                    responseDiv.style.display = "block";
-                }
-            } catch (error) {
-                responseDiv.innerHTML = "Error: Internet check karein ya API key sahi hai ya nahi.";
-                responseDiv.style.display = "block";
-            }
-            loader.style.display = "none";
-        }
-
-        async function processImage() {
-            var file = document.getElementById('imageInput').files[0];
-            if (!file) return;
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('summaryInput').value = "Text nikal raha hai...";
-            try {
-                var result = await Tesseract.recognize(file, 'eng');
-                document.getElementById('summaryInput').value = result.data.text;
-                document.getElementById('loader').style.display = 'none';
-                generateSummary();
-            } catch (error) {
-                alert("Photo padhne mein error aayi.");
-                document.getElementById('loader').style.display = 'none';
-            }
-        }
-
-        function generateSummary() {
-            var text = document.getElementById('summaryInput').value;
-            var outputDiv = document.getElementById('summaryOutput');
-            if(text.length < 50) { alert("Kam se kam 50 akshar chahiye!"); return; }
-            var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-            if (sentences.length <= 3) { outputDiv.style.display = "block"; outputDiv.innerHTML = "<b>Summary:</b><br><br>" + text; return; }
-            var summary = sentences.slice(0, 3).join(" ");
-            outputDiv.style.display = "block";
-            outputDiv.innerHTML = "<b>Short Summary:</b><br><br>" + summary;
-        }
-
-        function loadDailyWord() {
-            var today = new Date();
-            var index = today.getDate() % wordList.length;
-            var word = wordList[index];
-            document.getElementById('dailyWord').innerHTML = "🌟 Word of the Day: <b>" + word.word + "</b> (" + word.hindi + ")";
-        }
-
-        var currentQuestion = {};
-        var score = 0;
-
-        function loadQuiz() {
-            document.getElementById('quizOptions').innerHTML = '';
-            var randomIndex = Math.floor(Math.random() * wordList.length);
-            currentQuestion = wordList[randomIndex];
-            document.getElementById('quizQuestion').innerText = '"' + currentQuestion.word + '" ka Hindi matlab kya hai?';
-            var options = [currentQuestion.hindi];
-            while(options.length < 4) {
-                var wrongWord = wordList[Math.floor(Math.random() * wordList.length)].hindi;
-                if(options.indexOf(wrongWord) === -1) { options.push(wrongWord); }
-            }
-            options.sort(function() { return 0.5 - Math.random() });
-            for(var i=0; i<options.length; i++) {
-                var div = document.createElement('div');
-                div.className = 'quiz-option';
-                div.innerText = options[i];
-                div.onclick = (function(opt, el) { return function() { checkAnswer(el, opt); }; })(options[i], div);
-                document.getElementById('quizOptions').appendChild(div);
-            }
-        }
-
-        function checkAnswer(element, selectedOption) {
-            var allOptions = document.querySelectorAll('.quiz-option');
-            for(var i=0; i<allOptions.length; i++) { allOptions[i].onclick = null; }
-            if(selectedOption === currentQuestion.hindi) {
-                element.classList.add('correct');
-                score += 10;
-                document.getElementById('quizScore').innerText = "Score: " + score;
-            } else {
-                element.classList.add('wrong');
-                for(var i=0; i<allOptions.length; i++) {
-                    if(allOptions[i].innerText === currentQuestion.hindi) allOptions[i].classList.add('correct');
-                }
-            }
-        }
-
-        function startApp() {
-            loadDailyWord();
-            loadQuiz();
-            loadAllWords();
-        }
-    </script>
-</body>
-  </html>
+    // --- 10. NATURE (50 Words) ---
+    { word: "Sun", meaning: "The star that gives us light", hindi: "सूरज", category: "Nature" },
+    { word: "Moon", meaning: "The natural satellite of earth", hindi: "चांद", category: "Nature" },
+    { word: "Star", meaning: "A bright point in the night sky", hindi: "तारा", category: "Nature" },
+    { word: "Sky", meaning: "The space above the earth", hindi: "आकाश", category: "Nature" },
+    { word: "Rain", meaning: "Water falling from clouds", hindi: "बारिश", category: "Nature" },
+    { word: "Tree", meaning: "A tall plant with a trunk", hindi: "पेड़", category: "Nature" },
+    { word: "Flower", meaning: "The colored part of a plant", hindi: "फूल", category: "Nature" },
+    { word: "Mountain", meaning: "A very high hill", hindi: "पहाड़", category: "Nature" },
+    { word: "River", meaning: "A large natural stream of water", hindi: "नदी", category: "Nature" },
+    { word: "Sea", meaning: "A large body of salt water", hindi: "समुद्र", category: "Nature" },
+    { word: "Cloud", meaning: "A visible mass of water droplets", hindi: "बादल", category: "Nature" },
+    { word: "Wind", meaning: "The natural movement of air", hindi: "हवा", category: "Nature" },
+    { word: "Storm", meaning: "A violent disturbance of the atmosphere", hindi: "तूफान", category: "Nature" },
+    { word: "Snow", meaning: "Frozen water vapour falling in flakes", hindi: "बर्फ", category: "Nature" },
+    { word: "Ice", meaning: "Frozen water", hindi: "बर्फ", category: "Nature" },
+    { word: "Fire", meaning: "The process of burning something", hindi: "आग", category: "Nature" },
+    { word: "Earth", meaning: "The planet on which we live", hindi: "पृथ्वी", category: "Nature" },
+    { word: "Waterfall", meaning: "A cascade of water falling from a height", hindi: "झरना", category: "Nature" },
+    { word: "Lake", meaning: "A large body of water surrounded by land", hindi: "झील", category: "Nature" },
+    { word: "Pond", meaning: "A small body of still water", hindi: "तालाब", category: "Nature" },
+    { word: "Ocean", meaning: "A very large expanse of sea", hindi: "महासागर", category: "Nature" },
+    { word: "Forest", meaning: "A large area covered chiefly with trees", hindi: "जंगल", category: "Nature" },
+    { word: "Desert", meaning: "A dry, barren area of land", hindi: "रेगिस्तान", category: "Nature" },
+    { word: "Valley", meaning: "A low area of land between hills or mountains", hindi: "घाटी", category: "Nature" },
+    { word: "Hill", meaning: "A naturally raised area of land", hindi: "पहाड़ी", category: "Nature" },
+    { word: "Island", meaning: "A piece of land surrounded by water", hindi: "द्वीप", category: "Nature" },
+    { word: "Beach", meaning: "A pebbly or sandy shore", hindi: "समुद्र तट", category: "Nature" },
+    { word: "Cave", meaning: "A large underground chamber", hindi: "गुफा", category: "Nature" },
+    { word: "Rock", meaning: "The solid mineral material forming part of the surface", hindi: "चट्टान", category: "Nature" },
+    { word: "Sand", meaning: "A loose granular substance", hindi: "रेत", category: "Nature" },
+    { word: "Soil", meaning: "The upper layer of earth", hindi: "मिट्टी", category: "Nature" },
+    { word: "Seed", meaning: "The unit of reproduction of a flowering plant", hindi: "बीज", category: "Nature" },
+    { word: "Leaf", meaning: "A flat structure attached to the stem of a plant", hindi: "पत्ता", category: "Nature" },
+    { word: "Branch", meaning: "A part of a tree growing out from the trunk", hindi: "शाखा", category: "Nature" },
+    { word: "Root", meaning: "The part of a plant that attaches it to the ground", hindi: "जड़", category: "Nature" },
+    { word: "Grass", meaning: "Vegetation consisting of typically short plants", hindi: "घास", category: "Nature" },
+    { word: "Fruit", meaning: "The sweet and fleshy product of a tree or plant", hindi: "फल", category: "Nature" },
+    { word: "Wood", meaning: "The hard fibrous material of a tree", hindi: "लकड़ी", category: "Nature" },
+    { word: "Stone", meaning: "Hard solid non-metallic mineral matter", hindi: "पत्थर", category: "Nature" },
+    { word: "Dust", meaning: "Fine, dry powder consisting of tiny particles", hindi: "धूल", category: "Nature" },
+    { word: "Mud", meaning: "Soft, sticky matter resulting from the mixing of earth and water", hindi: "कीचड़", category: "Nature" },
+    { word: "Smoke", meaning: "A visible suspension of carbon particles in air", hindi: "धुआं", category: "Nature" },
+    { word: "Fog", meaning: "A thick cloud of tiny water droplets", hindi: "कोहरा", category: "Nature" },
+    { word: "Dew", meaning: "Tiny drops of water that form on cool surfaces at night", hindi: "ओस", category: "Nature" },
+    { word: "Shadow", meaning: "A dark area produced by an object blocking light", hindi: "परछाई", category: "Nature" },
+    { word: "Light", meaning: "The natural agent that stimulates sight", hindi: "प्रकाश", category: "Nature" },
+    { word: "Darkness", meaning: "The partial or total absence of light", hindi: "अंधेरा", category: "Nature" },
+    { word: "Heat", meaning: "The quality of being hot", hindi: "गर्मी", category: "Nature" },
+    { word: "Cold", meaning: "Of or at a low temperature", hindi: "ठंड", category: "Nature" },
+    { word: "Rainbow", meaning: "A multicolored arc in the sky", hindi: "इंद्रधनुष", category: "Nature" }
+];
