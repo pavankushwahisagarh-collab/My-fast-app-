@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -262,22 +262,8 @@
         var currentQuestion = {};
         var score = 0;
         var isFillBlank = false;
-        var GEMINI_API_KEY = curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent" \
-  -H 'Content-Type: application/json' \
-  -H 'X-goog-api-key: AQ.Ab8RN6JaF9DXogh6CHpGdNLae4xLIkMiplrw8ab_7jdgOYQiYA' \
-  -X POST \
-  -d '{
-    "contents": [
-      {
-        "parts": [
-          {
-            "text": "Explain how AI works in a few words"
-          }
-        ]
-      }
-    ]
-  }'
-
+        var GEMINI_API_KEY = 
+AQ.Ab8RN6JaF9DXogh6CHpGdNLae4xLIkMiplrw8ab_7jdgOYQiYA
         function switchTab(tabId) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.content');
@@ -524,4 +510,4 @@
         }
     </script>
 </body>
-                </html>
+</html>
