@@ -115,7 +115,6 @@
             <button class="main-btn" onclick="loadQuiz()" style="background-color: #ff9800;">Next Question 🔄</button>
         </div>
 
-        <!-- UPDATED AI TOOLS SECTION -->
         <div id="ai" class="content">
             <h3 style="text-align:center; color:#555; margin-top:0;">AI Tools</h3>
             <select id="aiToolSelect" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc; font-size:16px;">
@@ -141,12 +140,6 @@
     </div>
 
     <script>
-        // Catch Errors
-        window.onerror = function(msg, url, line) {
-           alert("Code Error: " + msg + "\nLine: " + line);
-           return false;
-        };
-
         // LOGIN LOGIC
         function checkLogin() {
             try {
@@ -213,7 +206,7 @@
             { title: "Direct & Indirect Speech", rule: "Direct: He said, 'I am happy.' \n Indirect: He said that he was happy.", ex: "Rules for changing pronouns, tense and time.", hindi: "किसी के कहे हुए वाक्य को अपने शब्दों में कहना।" }
         ];
 
-        // 1000 WORDS DATA (COMPACT & ERROR-FREE)
+        // 1000 WORDS DATA
         var rawWords = [
             // Fruits (100)
             ["Apple","A round fruit","सेब","Fruits"],["Banana","Long curved fruit","केला","Fruits"],["Mango","Sweet yellow fruit","आम","Fruits"],["Orange","Citrus fruit","संतरा","Fruits"],["Grapes","Small bunch fruits","अंगूर","Fruits"],["Watermelon","Large red fruit","तरबूज","Fruits"],["Papaya","Tropical orange fruit","पपीता","Fruits"],["Guava","Sweet green fruit","अमरूद","Fruits"],["Pineapple","Spiky tropical fruit","अनानास","Fruits"],["Cherry","Small red fruit","चेरी","Fruits"],["Strawberry","Red seeded fruit","स्ट्रॉबेरी","Fruits"],["Kiwi","Green fleshy fruit","कीवी","Fruits"],["Lemon","Sour yellow fruit","नींबू","Fruits"],["Peach","Soft round fruit","आड़ू","Fruits"],["Pear","Bell-shaped fruit","नाशपाती","Fruits"],["Plum","Purple stone fruit","आलूबुखारा","Fruits"],["Pomegranate","Seeded red fruit","अनार","Fruits"],["Fig","Sweet seeded fruit","अंजीर","Fruits"],["Date","Sweet brown fruit","खजूर","Fruits"],["Blueberry","Small blue berry","ब्लूबेरी","Fruits"],["Raspberry","Red soft berry","रास्पबेरी","Fruits"],["Blackberry","Dark purple berry","ब्लैकबेरी","Fruits"],["Apricot","Small orange fruit","खुबानी","Fruits"],["Avocado","Green buttery fruit","मक्खन फल","Fruits"],["Coconut","White fleshed fruit","नारियल","Fruits"],["Melon","Sweet round fruit","खरबूजा","Fruits"],["Lychee","Pink rough fruit","लीची","Fruits"],["Custard Apple","Sweet green fruit","सीताफल","Fruits"],["Mulberry","Small sweet fruit","शहतूत","Fruits"],["Starfruit","Star-shaped fruit","कमरख","Fruits"],["Dragon Fruit","Pink fleshed fruit","ड्रैगन फ्रूट","Fruits"],["Passion Fruit","Purple juicy fruit","पैशन फ्रूट","Fruits"],["Gooseberry","Sour green fruit","आंवला","Fruits"],["Jackfruit","Large yellow fruit","कटहल","Fruits"],["Grapefruit","Large citrus fruit","चकोतरा","Fruits"],["Raisin","Dried grape","किशमिश","Fruits"],["Almond","Oval hard nut","बादाम","Fruits"],["Cashew","Kidney shaped nut","काजू","Fruits"],["Walnut","Hard shelled nut","अखरोट","Fruits"],["Peanut","Underground nut","मूंगफली","Fruits"],["Pistachio","Green small nut","पिस्ता","Fruits"],["Pumpkin","Large orange veg","कद्दू","Fruits"],["Sweet Potato","Sweet root veg","शकरकंद","Fruits"],["Tamarind","Sour brown fruit","इमली","Fruits"],["Sugarcane","Tall sugar grass","गन्ना","Fruits"],["Pomelo","Large citrus","चकोतरा","Fruits"],["Cranberry","Sour red berry","क्रैनबेरी","Fruits"],["Lime","Small green citrus","नींबू","Fruits"],["Olive","Small oil fruit","जैतून","Fruits"],["Cantaloupe","Orange melon","खरबूजा","Fruits"],["Clementine","Small sweet orange","संतरा","Fruits"],["Currant","Small dried fruit","मुनक्का","Fruits"],["Durian","Spiky smelly fruit","ड्यूरियन","Fruits"],["Elderberry","Dark small berry","एल्डरबेरी","Fruits"],["Honeydew","Green sweet melon","मधु तरबूज","Fruits"],["Huckleberry","Wild small berry","हकलबेरी","Fruits"],["Kumquat","Small orange fruit","कुमक्वाट","Fruits"],["Mandarin","Small sweet orange","संतरा","Fruits"],["Nectarine","Smooth peach","नेक्टराइन","Fruits"],["Persimmon","Sweet orange fruit","खुरमा","Fruits"],["Plantain","Cooking banana","कच्चा केला","Fruits"],["Quince","Hard yellow fruit","क्विंस","Fruits"],["Redcurrant","Red small berry","लाल मुनक्का","Fruits"],["Sapodilla","Sweet brown fruit","चीकू","Fruits"],["Soursop","Spiky green fruit","सोरसॉप","Fruits"],["Tangerine","Orange citrus","संतरा","Fruits"],["Yuzu","Sour citrus fruit","युज़ू","Fruits"],["Bergamot","Sour orange","बरगमोट","Fruits"],["Breadfruit","Starchy fruit","रोटी फल","Fruits"],["Chikoo","Sweet brown fruit","चीकू","Fruits"],["Cloudberry","Arctic berry","क्लाउडबेरी","Fruits"],["Damson","Small purple plum","बेर","Fruits"],["Feijoa","Green fruit","फीजोआ","Fruits"],["Gac","Spiky orange fruit","गैक","Fruits"],["Horned Melon","Spiky fruit","कीवानो","Fruits"],["Jabuticaba","Purple grape fruit","जबूटीकाबा","Fruits"],["Longan","Sweet round fruit","लोंगन","Fruits"],["Mangosteen","Purple fruit","मैंगोस्टीन","Fruits"],["Rambutan","Hairy red fruit","रामबुतान","Fruits"],["Salak","Snake fruit","सालक","Fruits"],["Tamarillo","Tree tomato","टमाटर फल","Fruits"],["Ugli Fruit","Citrus fruit","अगली फ्रूट","Fruits"],["Voavanga","Madagascar fruit","वोआवंगा","Fruits"],["Wax Apple","Bell fruit","जामुन","Fruits"],["Ximenia","Wild plum","ज़िमेनिया","Fruits"],["Yellow Plum","Sweet plum","पीला बेर","Fruits"],["Ziziphus","Jujube fruit","बेर","Fruits"],["Ackee","Jamaican fruit","एकी","Fruits"],["Bilberry","Small blue berry","बिलबेरी","Fruits"],["Buddha Hand","Fingered citrus","बुद्धा हैंड","Fruits"],["Cupuacu","Amazon fruit","कुपुआकु","Fruits"],["Lucuma","Peruvian fruit","लुकुमा","Fruits"],["Mamey","Tropical fruit","मामे","Fruits"],["Pitaya","Dragon fruit","पिताया","Fruits"],["Safou","African plum","सफाउ","Fruits"],["Santol","Cotton fruit","संतोल","Fruits"],["Tucuma","Palm fruit","टुकुमा","Fruits"],["African Cherry","Wild cherry","जंगली चेरी","Fruits"],["Bael","Wood apple","बेल","Fruits"],["Camu Camu","Sour berry","कामू कामू","Fruits"],
@@ -262,8 +255,10 @@
         var currentQuestion = {};
         var score = 0;
         var isFillBlank = false;
-        var GEMINI_API_KEY = 
-AQ.Ab8RN6JaF9DXogh6CHpGdNLae4xLIkMiplrw8ab_7jdgOYQiYA
+        
+        // Yahan aapki API key pehle se daali hui hai
+        var GEMINI_API_KEY = "AQ.Ab8RN6iMZ_6dzqL7_QkaVUdr1nn7UEr_tmaf1mEmj9c2ozfqw"; 
+
         function switchTab(tabId) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.content');
@@ -368,7 +363,7 @@ AQ.Ab8RN6JaF9DXogh6CHpGdNLae4xLIkMiplrw8ab_7jdgOYQiYA
             var loader = document.getElementById('aiLoader');
 
             if (prompt === "") { alert("Kripya kuch likhein!"); return; }
-            if (GEMINI_API_KEY === "YAHAN_APNI_API_KEY_PASTE_KAREIN") { alert("Kripya code mein apni API Key daalein."); return; }
+            if (GEMINI_API_KEY === "") { alert("Kripya code mein apni API Key daalein."); return; }
 
             responseDiv.style.display = "none";
             loader.style.display = "block";
